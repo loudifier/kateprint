@@ -1,10 +1,10 @@
 #!/bin/sh
 
 echo "installing VLC and pip..."
-#sudo apt-get install -y vlc python3-pip
+sudo apt-get install -y vlc python3-pip
 
 echo "installing Deepgram and Adafruit thermal printer libraries..."
-#pip3 install deepgram-sdk adafruit-circuitpython-thermal-printer
+pip3 install deepgram-sdk adafruit-circuitpython-thermal-printer
 
 echo "configuring serial port..."
 sudo raspi-config nonint do_serial 2
