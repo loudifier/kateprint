@@ -1,0 +1,12 @@
+[Unit]
+Description=Use VLC to stream mic input to self for use with Deepgram
+After=multi-user.target
+Before=transcribeprint.service
+
+[Service]
+User=pi
+ExecStart=cvlc -v alsa://plughw:1 --sout '#transcode{acodec=mp3,ab=64,channels=1}:standard{access=http,dst=0.0.0.0:8888/out.mp3}'
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

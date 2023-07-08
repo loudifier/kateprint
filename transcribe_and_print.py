@@ -1,8 +1,7 @@
+from pathlib import Path
 from deepgram import Deepgram
 import asyncio
 import aiohttp
-from functools import partial
-from typing import List
 import board
 import adafruit_thermal_printer
 import serial
@@ -10,8 +9,9 @@ import textwrap
 from time import sleep
 
 # Your Deepgram API Key
-with open('deepgram-key.txt', 'r') as file:
-    DEEPGRAM_API_KEY = file.read()
+key = Path(__file__).with_name('deepgram-key.txt')
+with key.open('r') as file:
+    DEEPGRAM_API_KEY = file.read().splitlines()[0]
 
 # URL for the audio you would like to stream
 #URL = 'http://stream.live.vc.bbcmedia.co.uk/bbc_world_service'
@@ -25,11 +25,6 @@ async def main():
   uart = serial.Serial("/dev/serial0", baudrate=9600, timeout=3000)
   printer = ThermalPrinter(uart)
   sleep(5)
-  print("starting transcripton...")
-  print("")
-  printer.print("starting transcription...")
-  printer.feed(2)
-  
 
   # Initialize the Deepgram SDK
   deepgram = Deepgram(DEEPGRAM_API_KEY)
@@ -40,9 +35,16 @@ async def main():
     deepgramLive = await deepgram.transcription.live({ 'punctuate': True, 'interim_results': False, 'language': 'en-US', 'model': 'nova' })
   except Exception as e:
     print(f'Could not open socket: {e}')
+    printer.print('Connection failed, check API key')
+    printer.feed(1)
     return
 
-# Listen for the connection to close
+  print("starting transcripton...")
+  print("")
+  printer.print("starting transcription...")
+  printer.feed(1)
+
+  # Listen for the connection to close
   deepgramLive.registerHandler(deepgramLive.event.CLOSE, lambda c: print(f'Connection closed with code {c}.'))
 
   # Listen for any transcripts received from Deepgram and write them to the console
@@ -71,17 +73,19 @@ async def main():
 
         while len(transcription)>32:
             lines = textwrap.fill(transcription,32).splitlines()
-            print(lines[0] + ' ')
-            printer.print(lines.pop(0) + ' ')
-            transcription = ' '.join(lines) + ' '
-            inactive = 0
+            if lines:
+                print(lines[0] + ' ')
+                printer.print(lines.pop(0) + ' ')
+                transcription = ' '.join(lines) + ' '
 
-        if inactive > 0 and len(transcription): # print any remaining text if no new text has come in for 3 seconds
+        if inactive > 2 and len(transcription): # print any remaining text if no new text has come in for n transcription chunks
             lines = textwrap.fill(transcription,32).splitlines()
-            print(lines[0] + ' ')
-            printer.print(lines.pop(0) + ' ')
-            printer.feed(1)
-            transcription = ' '.join(lines) + ' '
+            if lines:
+                print(lines[0] + ' ')
+                print('')
+                printer.print(lines.pop(0) + ' ')
+                #printer.feed(1)
+                transcription = ' '.join(lines)
 
         # If there's no data coming from the livestream then break out of the loop
         if not data:
