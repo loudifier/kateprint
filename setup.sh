@@ -14,7 +14,7 @@ if [ ! -e /home/$USER/kateprint/deepgram-key.txt ]
 then
     echo -n "Deepgram API key not found, enter key: "
     read key
-    echo key > /home/$USER/kateprint/deepgram-key.txt
+    echo $key > /home/$USER/kateprint/deepgram-key.txt
 else
     echo "Deepgram API key found"
 fi

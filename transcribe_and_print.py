@@ -17,12 +17,21 @@ with key.open('r') as file:
 #URL = 'http://stream.live.vc.bbcmedia.co.uk/bbc_world_service'
 URL = 'http://127.0.0.1:8888/out.mp3'
 
+# Printer config
+key = Path(__file__).with_name('fwversion.txt')
+with key.open('r') as file:
+    FWVERSION = float(file.read().splitlines()[0])
+key = Path(__file__).with_name('baudrate.txt')
+with key.open('r') as file:
+    BAUDRATE = file.read().splitlines()[0]
+
+
 async def main():
   # Initialize thermal printer
-  ThermalPrinter = adafruit_thermal_printer.get_printer_class(2.69)
+  ThermalPrinter = adafruit_thermal_printer.get_printer_class(FWVERSION)
   RX = board.RX
   TX = board.TX
-  uart = serial.Serial("/dev/serial0", baudrate=9600, timeout=3000)
+  uart = serial.Serial("/dev/serial0", baudrate=BAUDRATE, timeout=3000)
   printer = ThermalPrinter(uart)
   sleep(5)
 
