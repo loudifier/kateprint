@@ -34,3 +34,27 @@ This command will take a long time. When prompted, enter your Deepgram API key. 
 
 10. Plug in the webcam, connect and power on the printer, then start the Pi. If everything is set up correctly, the printer should print out a transcription of whatever gets picked up by the mic.  
 ![](img/working.jpg)
+
+## Changing configurations
+### Printer Configuration
+To update the API key or the printer FW version or buadrate, shh into the Pi and run  
+`./kateprint/config.sh`  
+The script will prompt you to change the API key, baudrate, and FW version, then ask if you want to restart the transcription.  
+![](img/config.png)  
+You can also manually change the configurations. Shut down the Pi and insert the SD card into your PC/card reader, then edit deepgram-key.txt, baudrate.txt, and/or fwversion.txt in the root directory of the SD card. The new settings will be used the next time you boot the Pi.
+
+### Switch wifi network
+
+To switch to a different wifi network, shut down the Pi and insert the SD card into your PC/card reader. Create a text file in the root directory of the SD card called wpa_supplicant.conf. Add this text (with your wifi info) to the file and save it:
+```
+country=US
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+
+network={
+ssid="YOUR_WIFI_NAME"
+psk="YOUR_WIFI_PASSWORD"
+key_mgmt=WPA-PSK
+}
+```
+The pi should connect to the new wifi network the next time it boots. (It will also delete wpa_supplicant.conf on boot, so you will need to create a new copy every time you switch networks)
