@@ -9,7 +9,8 @@ import textwrap
 from time import sleep
 
 # Your Deepgram API Key
-key = Path(__file__).with_name('deepgram-key.txt')
+#key = Path(__file__).with_name('deepgram-key.txt')
+key = Path('/boot/deepgram-key.txt')
 with key.open('r') as file:
     DEEPGRAM_API_KEY = file.read().splitlines()[0]
 
@@ -18,11 +19,13 @@ with key.open('r') as file:
 URL = 'http://127.0.0.1:8888/out.mp3'
 
 # Printer config
-key = Path(__file__).with_name('fwversion.txt')
-with key.open('r') as file:
+#version = Path(__file__).with_name('fwversion.txt')
+version = Path('/boot/fwversion.txt')
+with version.open('r') as file:
     FWVERSION = float(file.read().splitlines()[0])
-key = Path(__file__).with_name('baudrate.txt')
-with key.open('r') as file:
+rate = Path(__file__).with_name('baudrate.txt')
+#rate = Path('/boot/baudrate.txt')
+with rate.open('r') as file:
     BAUDRATE = file.read().splitlines()[0]
 
 

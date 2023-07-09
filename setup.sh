@@ -19,6 +19,11 @@ else
     echo "Deepgram API key found"
 fi
 
+echo "writing config files to /boot/..."
+cp /home/$USER/kateprint/deepgram-key.txt /boot/
+cp /home/$USER/kateprint/fwversion.txt /boot/
+cp /home/$USER/kateprint/baudrate.txt /boot/
+
 echo "setting transcribe_and_print to run on boot..."
 # rc.local might be able to work, but tough to get running
 #VLCCMD="su -u $USER -c cvlc -v alsa://plughw:1 --sout '#transcode{acodec=mp3,ab=64,channels=1}:standard{access=http,dst=0.0.0.0:8888/out.mp3}' &"
