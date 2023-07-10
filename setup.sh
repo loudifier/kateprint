@@ -41,6 +41,11 @@ sudo systemctl daemon-reload
 sudo systemctl enable vlcmic.service
 sudo systemctl enable transcribeprint.service
 
+echo "enabling power button..."
+sudo cp /home/$USER/kateprint/powerbutton.service /lib/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable powerbutton.service
+
 echo "setup complete, press ENTER to shut down..."
 read key
 sudo halt

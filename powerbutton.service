@@ -1,0 +1,11 @@
+[Unit]
+Description=Enable power button to turn off pi
+After=multi-user.target
+
+[Service]
+User=pi
+ExecStart=python3 /home/pi/powerbutton.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
