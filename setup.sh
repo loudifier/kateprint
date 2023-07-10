@@ -20,9 +20,9 @@ else
 fi
 
 echo "writing config files to /boot/..."
-cp /home/$USER/kateprint/deepgram-key.txt /boot/
-cp /home/$USER/kateprint/fwversion.txt /boot/
-cp /home/$USER/kateprint/baudrate.txt /boot/
+sudo cp /home/$USER/kateprint/deepgram-key.txt /boot/
+sudo cp /home/$USER/kateprint/fwversion.txt /boot/
+sudo cp /home/$USER/kateprint/baudrate.txt /boot/
 
 echo "setting transcribe_and_print to run on boot..."
 # rc.local might be able to work, but tough to get running
