@@ -13,6 +13,7 @@ echo "enabling bitmap printing..."
 baudrate=`cat /home/$USER/kateprint/baudrate.txt`
 sudo lpadmin -p thermal -E -v serial:/dev/serial0?baud=$baudrate -P /home/$USER/zj-58/ZJ-58.ppd
 sudo systemctl restart cups
+sleep 10
 lpoptions -d thermal
 
 echo "installing Deepgram and Adafruit thermal printer libraries..."
