@@ -66,6 +66,10 @@ sudo cp /home/$USER/kateprint/fwversion.txt /boot/
 sudo cp /home/$USER/kateprint/baudrate.txt /boot/
 echo ""
 
+echo "Restarting cups..."
+sudo lpadmin -p thermal -E -v serial:/dev/serial0?baud=$baudrate -P /home/$USER/zj-58/ZJ-58.ppd
+sudo systemctl restart cups
+
 echo "restarting transcription..."
 sudo systemctl restart vlcmic.service
 sudo systemctl restart transcribeprint.service

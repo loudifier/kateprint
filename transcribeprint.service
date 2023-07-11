@@ -5,6 +5,7 @@ After=vlcmic.service
 [Service]
 #Environment=PATH=/home/pi/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games
 ExecStart=python3 /home/pi/kateprint/transcribe_and_print.py
+ExecStartPre=/bin/sleep 10 # wait for vlcmic to start and stabilize
 User=pi
 Restart=always
 

@@ -6,7 +6,8 @@ import board
 import adafruit_thermal_printer
 import serial
 import textwrap
-from time import sleep
+import time
+import os
 
 # Your Deepgram API Key
 #key = Path(__file__).with_name('deepgram-key.txt')
@@ -36,7 +37,7 @@ async def main():
   TX = board.TX
   uart = serial.Serial("/dev/serial0", baudrate=BAUDRATE, timeout=3000)
   printer = ThermalPrinter(uart)
-  sleep(5)
+  time.sleep(5)
 
   # Initialize the Deepgram SDK
   deepgram = Deepgram(DEEPGRAM_API_KEY)
@@ -79,6 +80,7 @@ async def main():
         if storage:
             if len(storage[0]['channel']['alternatives'][0]['transcript']):
                 transcription += storage.pop(0)['channel']['alternatives'][0]['transcript'] + ' '
+                inactive = 0
             else:
                 storage.pop(0)
                 inactive += 1
@@ -86,6 +88,9 @@ async def main():
         while len(transcription)>32:
             lines = textwrap.fill(transcription,32).splitlines()
             if lines:
+                if 'artist' in transcription.lower():
+                    os.system('lp -o fit-to-page -o orientation-requested=3 /home/$USER/kateprint/qr.png')
+                    time.sleep(10)
                 print(lines[0] + ' ')
                 printer.print(lines.pop(0) + ' ')
                 transcription = ' '.join(lines) + ' '
@@ -93,6 +98,9 @@ async def main():
         if inactive > 2 and len(transcription): # print any remaining text if no new text has come in for n transcription chunks
             lines = textwrap.fill(transcription,32).splitlines()
             if lines:
+                if 'artist' in transcription.lower():
+                    os.system('lp -o fit-to-page -o orientation-requested=3 /home/$USER/kateprint/qr.png')
+                    time.sleep(10)
                 print(lines[0] + ' ')
                 print('')
                 printer.print(lines.pop(0) + ' ')
@@ -101,8 +109,10 @@ async def main():
 
         # If there's no data coming from the livestream then break out of the loop
         if not data:
-            print('no data')
-            break
+            #print("No data from stream. Try 'sudo systemctl restart vlcmic.service'")
+            print("No data from stream, restarting vlcmic...")
+            os.system("sudo systemctl restart vlcmic.service")
+            #break
 
   # Indicate that we've finished sending data by sending the customary zero-byte message to the Deepgram streaming endpoint, and wait until we get back the final summary metadata object
   await deepgramLive.finish()

@@ -1,7 +1,19 @@
 #!/bin/sh
 
-echo "installing VLC and pip..."
-sudo apt-get install -y vlc python3-pip
+echo "installing VLC, pip, and CUPS..."
+sudo apt-get install -y vlc python3-pip libcups2-dev libcupsimage2-dev build-essential cups system-config-printer
+
+echo "building print driver..."
+git clone https://github.com/adafruit/zj-58
+cd zj-58
+make
+sudo ./install
+cd ..
+echo "enabling bitmap printing..."
+baudrate=`cat /home/$USER/kateprint/baudrate.txt`
+sudo lpadmin -p thermal -E -v serial:/dev/serial0?baud=$baudrate -P /home/$USER/zj-58/ZJ-58.ppd
+sudo systemctl restart cups
+lpoptions -d thermal
 
 echo "installing Deepgram and Adafruit thermal printer libraries..."
 pip3 install deepgram-sdk adafruit-circuitpython-thermal-printer
