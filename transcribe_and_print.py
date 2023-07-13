@@ -48,7 +48,7 @@ async def main():
     deepgramLive = await deepgram.transcription.live({ 'punctuate': True, 'interim_results': False, 'language': 'en-US', 'model': 'nova' })
   except Exception as e:
     print(f'Could not open socket: {e}')
-    printer.print('Connection failed, check API key')
+    printer.print('Connection failed, check wifi and API key')
     printer.feed(1)
     return
 
