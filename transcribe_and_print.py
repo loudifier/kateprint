@@ -66,6 +66,9 @@ async def main():
   storage = []
   transcription = ""
   inactive = 0
+  qrseconds = 13 # time needed to print QR without colliding with text
+  qrtimeout = 60 # time to wait after printing qr code before printing another qr code
+  qrtimer = time.time() - qrtimeout
   def store_data(data: any) -> None:
         storage.append(data)
   deepgramLive.registerHandler(deepgramLive.event.TRANSCRIPT_RECEIVED, store_data)
@@ -85,34 +88,37 @@ async def main():
                 storage.pop(0)
                 inactive += 1
 
-        while len(transcription)>32:
-            lines = textwrap.fill(transcription,32).splitlines()
-            if lines:
-                if 'artist' in transcription.lower():
-                    os.system('lp -o fit-to-page -o orientation-requested=3 /home/$USER/kateprint/qr.png')
-                    time.sleep(10)
-                print(lines[0] + ' ')
-                printer.print(lines.pop(0) + ' ')
-                transcription = ' '.join(lines) + ' '
+        if (time.time() - qrtimer) > qrseconds:
+            while len(transcription)>32:
+                lines = textwrap.fill(transcription,32).splitlines()
+                if lines:
+                    if 'artist' in transcription.lower() and (time.time() - qrtimer) > qrtimeout:
+                        qrtimer = time.time()
+                        os.system('lp -o fit-to-page -o orientation-requested=3 /home/$USER/kateprint/qr.png')
+                        #time.sleep(10)
+                    print(lines[0] + ' ')
+                    printer.print(lines.pop(0) + ' ')
+                    transcription = ' '.join(lines) + ' '
 
-        if inactive > 2 and len(transcription): # print any remaining text if no new text has come in for n transcription chunks
-            lines = textwrap.fill(transcription,32).splitlines()
-            if lines:
-                if 'artist' in transcription.lower():
-                    os.system('lp -o fit-to-page -o orientation-requested=3 /home/$USER/kateprint/qr.png')
-                    time.sleep(10)
-                print(lines[0] + ' ')
-                print('')
-                printer.print(lines.pop(0) + ' ')
-                #printer.feed(1)
-                transcription = ' '.join(lines)
+            if inactive > 0 and len(transcription): # print any remaining text if no new text has come in for n transcription chunks
+                lines = textwrap.fill(transcription,32).splitlines()
+                if lines:
+                    if 'artist' in transcription.lower() and (time.time() - qrtimer) > qrtimeout:
+                        qrtimer = time.time()
+                        os.system('lp -o fit-to-page -o orientation-requested=3 /home/$USER/kateprint/qr.png')
+                        #time.sleep(10)
+                    print(lines[0] + ' ')
+                    print('')
+                    printer.print(lines.pop(0) + ' ')
+                    printer.feed(1)
+                    transcription = ' '.join(lines)
 
-        # If there's no data coming from the livestream then break out of the loop
-        if not data:
-            #print("No data from stream. Try 'sudo systemctl restart vlcmic.service'")
-            print("No data from stream, restarting vlcmic...")
-            os.system("sudo systemctl restart vlcmic.service")
-            #break
+            # If there's no data coming from the livestream then break out of the loop
+            if not data:
+                #print("No data from stream. Try 'sudo systemctl restart vlcmic.service'")
+                print("No data from stream, restarting vlcmic...")
+                os.system("sudo systemctl restart vlcmic.service")
+                #break
 
   # Indicate that we've finished sending data by sending the customary zero-byte message to the Deepgram streaming endpoint, and wait until we get back the final summary metadata object
   await deepgramLive.finish()
